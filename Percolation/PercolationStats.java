@@ -17,8 +17,8 @@ public class PercolationStats {
         if (n <= 0 || trials <= 0) {
             throw new IllegalArgumentException("n and trials must be positive");
         }
-        percolationThreshold = new double[n];
-        t = n;
+        percolationThreshold = new double[trials];
+        t = trials;
         for (int i = 0; i < trials; i++) {
             Percolation p = new Percolation(n);
             while (!p.percolates()) {
@@ -27,7 +27,9 @@ public class PercolationStats {
                 while (p.isOpen(openX, openY)) {
                     openX = StdRandom.uniformInt(1, n + 1);
                     openY = StdRandom.uniformInt(1, n + 1);
+
                 }
+                p.open(openX, openY);
             }
             percolationThreshold[i] = p.numberOfOpenSites() * 1.0 / (n * n);
         }
@@ -42,16 +44,16 @@ public class PercolationStats {
     }
 
     public double confidenceLo() {
-        return mean() - (CONST_K * stddev() / Math.sqrt(t));
+        return mean() - (CONST_K * stddev() / Math.sqrt(t * 1.0));
     }
 
     public double confidenceHi() {
-        return mean() + (CONST_K * stddev() / Math.sqrt(t));
+        return mean() + (CONST_K * stddev() / Math.sqrt(t * 1.0));
     }
 
     public static void main(String[] args) {
-        int n = args[0].charAt(0) - '0';
-        int t = args[1].charAt(0) - '0';
+        int n = Integer.parseInt(args[0]);
+        int t = Integer.parseInt(args[1]);
         PercolationStats stats = new PercolationStats(n, t);
         double mean = stats.mean();
         double stddev = stats.stddev();

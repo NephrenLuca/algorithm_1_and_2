@@ -9,9 +9,9 @@ import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
-    private WeightedQuickUnionUF unionSet;
+    private WeightedQuickUnionUF unionSet, unionFull;
     private int size, openedSites;
-    private boolean[] opened, filled;
+    private boolean[] opened;
 
     public Percolation(int n) {
         if (n <= 0) {
@@ -19,10 +19,9 @@ public class Percolation {
         }
         // using 0 and n * n + 1 as super sources
         unionSet = new WeightedQuickUnionUF(n * n + 2);
+        unionFull = new WeightedQuickUnionUF(n * n + 1);
         size = n;
-        filled = new boolean[n * n + 2];
         opened = new boolean[n * n + 2];
-        filled[0] = true;
         opened[0] = true;
         openedSites = 0;
     }
@@ -32,13 +31,11 @@ public class Percolation {
     }
 
     private void unionFillIn(int row1, int col1, int row2, int col2) {
+        // unites two adjacent open sites
         int pos1 = getPos(row1, col1);
         int pos2 = getPos(row2, col2);
         unionSet.union(pos1, pos2);
-        if (filled[unionSet.find(pos1)]) {
-            filled[pos1] = true;
-            filled[pos2] = true;
-        }
+        unionFull.union(pos1, pos2);
     }
 
     public void open(int row, int col) {
@@ -53,12 +50,10 @@ public class Percolation {
         opened[pos] = true;
         if (row == 1) {
             unionSet.union(0, pos);
-            filled[pos] = true;
+            unionFull.union(0, pos);
         }
-        else if (row == size) {
+        if (row == size) {
             unionSet.union(size * size + 1, pos);
-            filled[pos] = filled[unionSet.find(pos)];
-            filled[size * size + 1] = filled[pos];
         }
         if (row > 1 && isOpen(row - 1, col)) {
             unionFillIn(row, col, row - 1, col);
@@ -87,8 +82,7 @@ public class Percolation {
             throw new IllegalArgumentException("row and col out of range");
         }
         int pos = getPos(row, col);
-        filled[pos] = filled[unionSet.find(pos)];
-        return filled[pos];
+        return unionFull.find(pos) == unionFull.find(0);
     }
 
     public int numberOfOpenSites() {
@@ -96,8 +90,7 @@ public class Percolation {
     }
 
     public boolean percolates() {
-        filled[size * size + 1] = filled[unionSet.find(size * size + 1)];
-        return filled[size * size + 1];
+        return unionSet.find(size * size + 1) == unionSet.find(0);
     }
 
     public static void main(String[] args) {
@@ -112,5 +105,11 @@ public class Percolation {
             p.open(x, y);
         }
         StdOut.println(p.percolates());
+        for (int j = 1; j <= n; j++) {
+            for (int kk = 1; kk <= n; kk++) {
+                StdOut.print(p.isOpen(j, kk));
+            }
+            StdOut.println();
+        }
     }
 }
