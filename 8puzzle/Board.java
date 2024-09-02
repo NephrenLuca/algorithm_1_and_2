@@ -4,6 +4,9 @@
  *  Description:
  **************************************************************************** */
 
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -40,6 +43,9 @@ public class Board {
         int hammingDistance = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
+                if (i == n - 1 && j == n - 1) {
+                    break;
+                }
                 if (tiles[i][j] != i * n + j + 1) {
                     hammingDistance++;
                 }
@@ -49,8 +55,12 @@ public class Board {
         int manhattanDistance = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
+                if (tiles[i][j] == 0) {
+                    continue;
+                }
+                int correcti = tiles[i][j] % n == 0 ? tiles[i][j] / n - 1 : tiles[i][j] / n;
                 int correctj = tiles[i][j] % n == 0 ? n - 1 : tiles[i][j] % n - 1;
-                manhattanDistance += abs(tiles[i][j] / n - i) + abs(correctj - j);
+                manhattanDistance += abs(correcti - i) + abs(correctj - j);
             }
         }
         manhattan = manhattanDistance;
@@ -87,6 +97,9 @@ public class Board {
     public boolean isGoal() {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
+                if (tiles[i][j] == 0) {
+                    continue;
+                }
                 if (tiles[i][j] != i * n + j + 1) {
                     return false;
                 }
@@ -131,6 +144,8 @@ public class Board {
                 newBoard[moveX][moveY] = 0;
                 p.add(new Board(newBoard));
             }
+            moveX = vacancyX;
+            moveY = vacancyY;
         }
         return p;
     }
@@ -156,5 +171,26 @@ public class Board {
     }
 
     public static void main(String[] args) {
+        In in = new In(args[0]);
+        int n = in.readInt();
+        int[][] tiles = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                tiles[i][j] = in.readInt();
+            }
+        }
+        Board initial = new Board(tiles);
+        Board inital2 = new Board(tiles);
+        StdOut.println(initial.equals(inital2));
+        StdOut.println(initial.equals(initial.twin()));
+
+        StdOut.println(initial);
+        StdOut.println("hamming dis: " + initial.hamming());
+        StdOut.println("manhattan dis: " + initial.manhattan());
+        StdOut.println("Twin: ");
+        StdOut.println(initial.twin());
+        StdOut.println("Neighbors: ");
+        ArrayList<Board> ns = (ArrayList<Board>) initial.neighbors();
+        for (Board b : ns) StdOut.println(b);
     }
 }
