@@ -106,9 +106,12 @@ public class KdTree {
     }
 
     public boolean contains(Point2D p) {
+        if (p == null) {
+            throw new IllegalArgumentException();
+        }
         Node cur = root;
         while (cur != null) {
-            if (cur.point == p) {
+            if (cur.point.compareTo(p) == 0) {
                 return true;
             }
             if (cur.status == VERTICAL) {
@@ -186,7 +189,7 @@ public class KdTree {
     }
 
     private void nearest(Point2D p, Node cur, Champion champion) {
-        double dis = cur.point.distanceTo(p);
+        double dis = cur.point.distanceSquaredTo(p);
         if (dis < champion.minDis) {
             champion.minDis = dis;
             champion.champ = cur.point;
@@ -197,18 +200,22 @@ public class KdTree {
             leftFirst = true;
         }
         if (leftFirst) {
-            if (cur.leftChild != null && champion.minDis > cur.leftChild.rect.distanceTo(p)) {
+            if (cur.leftChild != null && champion.minDis > cur.leftChild.rect.distanceSquaredTo(
+                    p)) {
                 nearest(p, cur.leftChild, champion);
             }
-            if (cur.rightChild != null && champion.minDis > cur.rightChild.rect.distanceTo(p)) {
+            if (cur.rightChild != null && champion.minDis > cur.rightChild.rect.distanceSquaredTo(
+                    p)) {
                 nearest(p, cur.rightChild, champion);
             }
         }
         else {
-            if (cur.rightChild != null && champion.minDis > cur.rightChild.rect.distanceTo(p)) {
+            if (cur.rightChild != null && champion.minDis > cur.rightChild.rect.distanceSquaredTo(
+                    p)) {
                 nearest(p, cur.rightChild, champion);
             }
-            if (cur.leftChild != null && champion.minDis > cur.leftChild.rect.distanceTo(p)) {
+            if (cur.leftChild != null && champion.minDis > cur.leftChild.rect.distanceSquaredTo(
+                    p)) {
                 nearest(p, cur.leftChild, champion);
             }
         }
